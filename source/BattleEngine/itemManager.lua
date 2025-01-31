@@ -6,7 +6,8 @@ local itemNames = {
     'Bandage',
     'Butterscotch Pie',
     'Tough Glove',
-    'Faded Ribbon'
+    'Faded Ribbon',
+    "Destroyed Notebook"
 }
 
 local itemStats = {
@@ -15,7 +16,8 @@ local itemStats = {
     10,
     'All',
     5,
-    3
+    3,
+    0
 }
 
 local itemDescs = {
@@ -24,7 +26,8 @@ local itemDescs = {
     'It has already been used\n  several times.',
     'Butterscotch-cinnamon pie,\n  one slice.',
     'A worn pink leather glove. For\n  five-fingered folk.',
-    "If you're cuter, monsters won't\n  hit you as hard."
+    "If you're cuter, monsters won't\n  hit you as hard.",
+    "It seems abandoned. Just like\n this project."
 }
 
 local itemTypes = {
@@ -33,7 +36,20 @@ local itemTypes = {
     'consumable',
     'consumable',
     'weapon',
-    'armor'
+    'armor',
+    "usable"
+}
+local itemOnUse = {
+    function(Player, text_drawerfunc)end,
+    function(Player, text_drawerfunc)end,
+    function(Player, text_drawerfunc)end,
+    function(Player, text_drawerfunc)end,
+    function(Player, text_drawerfunc)end,
+    function(Player, text_drawerfunc)end,
+    function(Player, TextWriter)
+        TextWriter:setParams("[clear]* You used the " .. "Destroyed Notebook" .. '.     [break]* You recovered -' .. (Player.stats.hp/2) .. ' HP.', 52, 274, fonts.determination, 0.02, 1)
+        Player.stats.hp = Player.stats.hp/2
+    end,
 }
 
 function itemManager:getPropertyfromID(id, property)
@@ -45,6 +61,8 @@ function itemManager:getPropertyfromID(id, property)
         return itemDescs[id]
     elseif property == 'type' then
         return itemTypes[id]
+    elseif property == 'onuse' then
+        return itemOnUse[id]
     end
 end
 

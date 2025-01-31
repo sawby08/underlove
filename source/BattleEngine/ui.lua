@@ -286,6 +286,8 @@ local function doItemText()
         drawText('* ' .. (itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'name') or 'None') .. ' (' .. (itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'stat') or 'None') .. ' ATT)', 52, 274, {1, 1, 1}, {0, 0, 0})
     elseif itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'type') == 'armor' then
         drawText('* ' .. (itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'name') or 'None') .. ' (' .. (itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'stat') or 'None') .. ' DEF)', 52, 274, {1, 1, 1}, {0, 0, 0})
+    elseif itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'type') == 'usable' then
+        drawText('* ' .. (itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'name') or 'None'), 52, 274, {1, 1, 1}, {0, 0, 0})
     end
 
     drawText("* " .. (itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'description') or 'None'), 52, 302, {1, 1, 1}, {0, 0, 0})

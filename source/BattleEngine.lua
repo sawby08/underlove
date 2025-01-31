@@ -74,41 +74,43 @@ function doFlee()
 end
 
 function useItem()
+    local ChosenItem = Player.inventory[global.subChoice + 1]
 
-    Writer:setParams("[clear]* You equipped the " .. itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'name') .. '.', 52, 274, fonts.determination, 0.02, 1)
-
-    if itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'type') == 'consumable' then
-        if type(itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'stat')) == 'number' then
-            Player.stats.hp = Player.stats.hp + itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'stat')
-        elseif itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'stat') == 'All' then
+    if itemManager:getPropertyfromID(ChosenItem, 'type') == 'consumable' then
+        if type(itemManager:getPropertyfromID(ChosenItem, 'stat')) == 'number' then
+            Player.stats.hp = Player.stats.hp + itemManager:getPropertyfromID(ChosenItem, 'stat')
+        elseif itemManager:getPropertyfromID(ChosenItem, 'stat') == 'All' then
             Player.stats.hp = Player.stats.maxhp
         end
         if Player.stats.hp >= Player.stats.maxhp then
-            Writer:setParams("[clear]* You ate the " .. itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'name') .. '.     [break]* Your HP was maxed out!', 52, 274, fonts.determination, 0.02, 1)
+            Writer:setParams("[clear]* You ate the " .. itemManager:getPropertyfromID(ChosenItem, 'name') .. '.     [break]* Your HP was maxed out!', 52, 274, fonts.determination, 0.02, 1)
         else
-            Writer:setParams("[clear]* You ate the " .. itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'name') .. '.     [break]* You recovered ' .. itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'stat') .. ' HP.', 52, 274, fonts.determination, 0.02, 1)
+            Writer:setParams("[clear]* You ate the " .. itemManager:getPropertyfromID(ChosenItem, 'name') .. '.     [break]* You recovered ' .. itemManager:getPropertyfromID(ChosenItem, 'stat') .. ' HP.', 52, 274, fonts.determination, 0.02, 1)
         end
         table.remove(Player.inventory, global.subChoice + 1)
+    elseif itemManager:getPropertyfromID(ChosenItem, 'type') == 'usable' then
+  --      Writer:setParams("[clear]* You used the " .. itemManager:getPropertyfromID(ChosenItem, 'name') .. '.', 52, 274, fonts.determination, 0.02, 1)
+        itemManager:getPropertyfromID(ChosenItem, 'onuse')(Player, Writer)
+        --table.remove(Player.inventory, global.subChoice + 1)
+    elseif itemManager:getPropertyfromID(ChosenItem, "type") == "armor" or itemManager:getPropertyfromID(ChosenItem, "type") == "weapon" then
+        Writer:setParams("[clear]* You equipped the " .. itemManager:getPropertyfromID(ChosenItem, 'name') .. '.', 52, 274, fonts.determination, 0.02, 1)
     end
-
-    if itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'type') == 'weapon' then
+    if itemManager:getPropertyfromID(ChosenItem, 'type') == 'weapon' then
         local lastWeapon = Player.stats.weapon
-        Player.stats.weapon = Player.inventory[global.subChoice + 1]
-        Player.inventory[global.subChoice + 1] = lastWeapon
+        Player.stats.weapon = ChosenItem
+        ChosenItem = lastWeapon
     end
 
-    if itemManager:getPropertyfromID(Player.inventory[global.subChoice + 1], 'type') == 'armor' then
+    if itemManager:getPropertyfromID(ChosenItem, 'type') == 'armor' then
         local lastArmor = Player.stats.armor
-        Player.stats.armor = Player.inventory[global.subChoice + 1]
-        Player.inventory[global.subChoice + 1] = lastArmor
+        Player.stats.armor = ChosenItem
+        ChosenItem = lastArmor
     end
-
 end
-
 function startEnemyTurn()
     global.battleState = 'enemyTurn'
     Ui.arenaTo = {x = 320, y = 320, width = 135, height = 135, rotation = 0}
     placeSoul()
 end
-
+    
 return BattleEngine
