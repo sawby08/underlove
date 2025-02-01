@@ -76,6 +76,7 @@ function Player:load()
         def = 0
     }
     heart = {
+---@diagnostic disable-next-line: undefined-global
         image = love.graphics.newImage('assets/images/ut-heart.png'),
         x = Ui.arenaTo.x - 8,
         y = Ui.arenaTo.y - 8,
@@ -85,7 +86,7 @@ function Player:load()
         show = true
     }
     Player.mode = 'red'
-    Player.inventory = {4, 1, 1, 5, 6}
+    Player.inventory = {7, 4, 1, 1, 5, 6}
     Player.chosenEnemy = 0
     Player.actAmount = 0
 end
