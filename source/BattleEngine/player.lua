@@ -88,6 +88,7 @@ function Player:load()
     Player.inventory = {4, 1, 1, 5, 6}
     Player.chosenEnemy = 0
     Player.actAmount = 0
+    Player.heart = heart
 end
 
 function Player:update(dt)
