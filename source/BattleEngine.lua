@@ -98,13 +98,13 @@ function useItem()
     if itemManager:getPropertyfromID(ChosenItem, 'type') == 'weapon' then
         local lastWeapon = Player.stats.weapon
         Player.stats.weapon = ChosenItem
-        ChosenItem = lastWeapon
+        Player.inventory[global.subChoice + 1] = lastWeapon
     end
 
     if itemManager:getPropertyfromID(ChosenItem, 'type') == 'armor' then
         local lastArmor = Player.stats.armor
         Player.stats.armor = ChosenItem
-        ChosenItem = lastArmor
+        Player.inventory[global.subChoice + 1] = lastArmor
     end
 end
 function startEnemyTurn()
