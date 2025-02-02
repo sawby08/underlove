@@ -352,21 +352,32 @@ function Ui:initFight()
 end
 
 function Ui:draw()
-    buttons()
-    stats()
-    arena()
-    -- love.graphics.setColor(1, 1, 1, .5)
-    -- love.graphics.draw(ref)
-    if global.battleState == 'chooseEnemy' then
-        doChooseText()
-    elseif global.battleState == 'fight' then
-        doFightUi()
-    elseif global.battleState == 'act' then
-        doActText()
-    elseif global.battleState == 'item' then
-        doItemText()
-    elseif global.battleState == 'mercy' then
-        doMercyText()
+    if global.battleState ~= "gameOver" then
+        buttons()
+        stats()
+        arena()
+        --love.graphics.setColor(1, 1, 1, .5)
+        --love.graphics.draw(ref)
+        if global.battleState == 'chooseEnemy' then
+            doChooseText()
+        elseif global.battleState == 'fight' then
+            doFightUi()
+        elseif global.battleState == 'act' then
+            doActText()
+        elseif global.battleState == 'item' then
+            doItemText()
+        elseif global.battleState == 'mercy' then
+            doMercyText()
+        end
+    else
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.clear()
+        love.graphics.setBackgroundColor(0, 0, 0, 1)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.setFont(fonts.determination)
+        drawText('GAME OVER', 320 - fonts.determination:getWidth('GAME OVER')/2, 240 - fonts.determination:getHeight('GAME OVER')/2, {1, 1, 1}, {0, 0, 0})
+        drawText('womp womp', 320 - fonts.determination:getWidth('GAME OVER')/2, 240 - fonts.determination:getHeight('womp womp')/1.5, {1, 1, 1}, {0, 0, 0})
+        drawText('game closes in maybe '..20-time.."secs", 320 - fonts.determination:getWidth('game closes in maybe 20 secs')/2, 240 - fonts.determination:getHeight('game closes in maybe 20 secs')/1.25, {1, 1, 1}, {0, 0, 0})
     end
 end
 
