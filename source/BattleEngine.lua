@@ -33,6 +33,9 @@ function BattleEngine:load()
 end
 
 function BattleEngine:update(dt)
+    if Player.stats.hp <= 0 then
+        global.battleState = 'gameOver'
+    end
     Ui:update(dt)
     Player:update(dt)
     Writer:update(dt)

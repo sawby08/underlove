@@ -383,9 +383,6 @@ end
 
 function Ui:update(dt)
     updateArena()
-    if player.stats.hp <= 0 then
-        global.battleState = 'gameOver'
-    end
     if global.battleState == 'fight' then
         updateFightUi(dt)
     end
