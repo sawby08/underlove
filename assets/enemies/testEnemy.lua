@@ -1,3 +1,43 @@
+-- Define the Attack class
+local Attack = {}
+Attack.__index = Attack
+-- Assuming a = {x = ..., y = ..., width = ..., height = ...}
+-- Assuming b = {x = ..., y = ..., width = ..., height = ...}
+time = 0
+function isColliding(a,b)
+    if ((b.x >= a.x + 16) or -- a.width
+        (b.x + 16 <= a.x) or -- b.width
+        (b.y >= a.y + 16) or -- a.height
+        (b.y + 16 <= a.y)) then -- a.height
+           return false 
+    else return true
+        end
+ end
+function Attack:new(image, x, y, updateFunc, dmg)
+    if dmg ~= dmg or dmg == nil then
+        dmg = 1
+    end
+    local attack = setmetatable({}, Attack)
+    attack.image = image
+    attack.x = x
+    attack.y = y
+    attack.dmg = dmg
+    attack.update = function (self, dt) updateFunc(self,dt) end
+    return attack
+end
+
+function Attack:draw()
+--    local upperbound = Ui.arenaTo.y+Ui.arenaTo.height
+--    local lowerbound = Ui.arenaTo.y
+--    love.graphics.rectangle("line", Ui.arenaTo.x, Ui.arenaTo.y, Ui.arenaTo.width, Ui.arenaTo.height)
+--    cr, cg, cb, ca = love.graphics.getColor()
+--    love.graphics.setColor(1,0,0,1)
+--    love.graphics.rectangle("line", Ui.arenaTo.x-(Ui.arenaTo.width/2), Ui.arenaTo.y-(Ui.arenaTo.height/2), Ui.arenaTo.width, Ui.arenaTo.height)
+--    love.graphics.setColor(cr,cg,cb,ca)
+    love.graphics.draw(self.image, self.x, self.y)
+end
+
+-- Modify the enemies table
 enemies = {}
 
 local color
@@ -58,7 +98,17 @@ function enemies:load()
         canSpare = false,
         state = 'alive',
         hp = 50,
-        maxhp = 50
+        maxhp = 50,
+        attacks = {
+            Attack:new(love.graphics.newImage("assets/images/ut-heart-broken.png"), 200, 137, function(self, dt)
+                -- Poseur-specific attack update logic here
+  --              if isColliding(self, Player.heart) then
+  --                  Player.stats.hp = Player.stats.hp - self.dmg
+  --              end
+  --              self.x = Player.heart.x+(24*dt)
+  --              self.y = Player.heart.y+(24*dt)
+            end)
+        }
     }
     
     enemies[2] = {
@@ -73,7 +123,31 @@ function enemies:load()
         canSpare = false,
         state = 'alive',
         hp = 100,
-        maxhp = 100
+        maxhp = 100,
+        attacks = {
+            Attack:new(love.graphics.newImage("assets/images/ut-heart-broken.png"), 0, -90, function(self, dt)
+                -- Poseur-specific attack update logic here
+                if isColliding(self, Player.heart) then
+                    Player.stats.hp = Player.stats.hp - self.dmg
+                end
+                time = time + 1
+                -- go down till the y is below 0, then select a random x position that is in the battle box and go back up
+                if self.y < Ui.arenaTo.y-(Ui.arenaTo.height/2) then
+                    self.y = Ui.arenaTo.y+(Ui.arenaTo.height/2)-16
+                    self.x = math.random(Ui.arenaTo.x-(Ui.arenaTo.width/2), Ui.arenaTo.width+(Ui.arenaTo.x-(Ui.arenaTo.width/2)))
+                else
+                    self.y = self.y - (200)*dt
+                end
+        --       Ui.arenaTo.rotation = Ui.arenaTo.rotation + 1
+                if time > 365 then -- turn lasts 365 frames (6 seconds and 5 frames)
+                    time = 0
+          --          Ui.arenaTo.rotation = 0
+                    global.battleState = 'buttons'
+                end
+        --        self.x = Player.heart.x+(24*dt)
+        --        self.y = Player.heart.y+(24*dt)
+            end)
+        }
     }
     
     enemies[1].acts = {'Check', 'Pose', 'Kill'}
@@ -91,7 +165,17 @@ function enemies:load()
 end
 
 function enemies:update(dt)
-    -- nothing
+    for i = 1, math.min(enemies.stats.amount, 3) do
+        local enemy = enemies[i]
+        if enemy.update then
+            enemy:update(dt)
+        end
+        if global.battleState == 'enemyTurn' then
+            for _, attack in ipairs(enemy.attacks) do
+                attack:update(dt)
+            end
+        end
+    end
 end
 
 function enemies:draw()
@@ -105,6 +189,11 @@ function enemies:draw()
             color = {1, 1, 1, .0}
         end
         drawGraphic(enemy.image, enemy.x - enemy.image:getWidth()/2 + enemy.xOff, enemy.y - enemy.image:getHeight()/2 + enemy.yOff, color, {0, 0, 0})
+        if global.battleState == 'enemyTurn' then
+            for _, attack in ipairs(enemy.attacks) do
+                attack:draw()
+            end
+        end
     end
 end
 
