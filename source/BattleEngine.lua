@@ -46,12 +46,17 @@ function BattleEngine:update(dt)
 end
 
 function BattleEngine:draw()
-    Enemies:background()
-    Enemies:draw()
+    if global.battleState ~= 'gameOver' then
+        Enemies:background()
+        Enemies:draw()
+    end
     Ui:draw()
-    Player:draw()
-    Writer:draw()
+    if global.battleState ~= 'gameOver' then
+        Player:draw()
+        Writer:draw()
+    end
 end
+
 
 function gotoMenu()
     global.battleState = 'buttons'
