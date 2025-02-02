@@ -3,7 +3,7 @@ Ui = {}
 local buttonNames = {'fight', 'act', 'item', 'mercy'}
 local buttonImages = {}
 local buttonQuads = {}
-
+local time = 0
 for _, name in ipairs(buttonNames) do
     buttonImages[name .. 'bt'] = love.graphics.newImage('assets/images/ui/bt/' .. name .. '.png')
     buttonQuads[name .. 'Quads'] = {
@@ -375,13 +375,18 @@ function Ui:draw()
         love.graphics.setBackgroundColor(0, 0, 0, 1)
         love.graphics.setColor(1, 1, 1)
         love.graphics.setFont(fonts.determination)
-        drawText('GAME OVER', 320 - fonts.determination:getWidth('GAME OVER')/2, 240 - fonts.determination:getHeight('GAME OVER')/2, {1, 1, 1}, {0, 0, 0})
-        drawText('womp womp', 320 - fonts.determination:getWidth('GAME OVER')/2, 240 - fonts.determination:getHeight('womp womp')/1.5, {1, 1, 1}, {0, 0, 0})
-        drawText('game closes in maybe '..20-time.."secs", 320 - fonts.determination:getWidth('game closes in maybe 20 secs')/2, 240 - fonts.determination:getHeight('game closes in maybe 20 secs')/1.25, {1, 1, 1}, {0, 0, 0})
+        drawText('GAME OVER', 320 - fonts.determination:getWidth('GAME OVER')/2, 240 - fonts.determination:getHeight('GAME OVER')*2, {1, 1, 1}, {0, 0, 0})
+        drawText('game closes in '..10-time.." seconds", 320 - fonts.determination:getWidth('game closes in maybe 20 secs')/1.5, 240 - fonts.determination:getHeight('game closes in maybe 20 secs')/3, {1, 1, 1}, {0, 0, 0})
     end
 end
 
 function Ui:update(dt)
+    if global.battleState == 'gameOver' then
+        time = time + dt
+        if time >= 10 then
+            love.event.quit()
+        end
+    end
     updateArena()
     if global.battleState == 'fight' then
         updateFightUi(dt)
