@@ -3,7 +3,7 @@ Ui = {}
 local buttonNames = {'fight', 'act', 'item', 'mercy'}
 local buttonImages = {}
 local buttonQuads = {}
-
+local time = 0
 for _, name in ipairs(buttonNames) do
     buttonImages[name .. 'bt'] = love.graphics.newImage('assets/images/ui/bt/' .. name .. '.png')
     buttonQuads[name .. 'Quads'] = {
@@ -352,25 +352,41 @@ function Ui:initFight()
 end
 
 function Ui:draw()
-    buttons()
-    stats()
-    arena()
-    -- love.graphics.setColor(1, 1, 1, .5)
-    -- love.graphics.draw(ref)
-    if global.battleState == 'chooseEnemy' then
-        doChooseText()
-    elseif global.battleState == 'fight' then
-        doFightUi()
-    elseif global.battleState == 'act' then
-        doActText()
-    elseif global.battleState == 'item' then
-        doItemText()
-    elseif global.battleState == 'mercy' then
-        doMercyText()
+    if global.battleState ~= "gameOver" then
+        buttons()
+        stats()
+        arena()
+        --love.graphics.setColor(1, 1, 1, .5)
+        --love.graphics.draw(ref)
+        if global.battleState == 'chooseEnemy' then
+            doChooseText()
+        elseif global.battleState == 'fight' then
+            doFightUi()
+        elseif global.battleState == 'act' then
+            doActText()
+        elseif global.battleState == 'item' then
+            doItemText()
+        elseif global.battleState == 'mercy' then
+            doMercyText()
+        end
+    else
+        love.graphics.setColor(0, 0, 0, 1)
+        love.graphics.clear()
+        love.graphics.setBackgroundColor(0, 0, 0, 1)
+        love.graphics.setColor(1, 1, 1)
+        love.graphics.setFont(fonts.determination)
+        drawText('GAME OVER', 320 - fonts.determination:getWidth('GAME OVER')/2, 240 - fonts.determination:getHeight('GAME OVER')*2, {1, 1, 1}, {0, 0, 0})
+        drawText('game closes in '..10-time.." seconds", 320 - fonts.determination:getWidth('game closes in maybe 20 secs')/1.5, 240 - fonts.determination:getHeight('game closes in maybe 20 secs')/3, {1, 1, 1}, {0, 0, 0})
     end
 end
 
 function Ui:update(dt)
+    if global.battleState == 'gameOver' then
+        time = time + dt
+        if time >= 10 then
+            love.event.quit()
+        end
+    end
     updateArena()
     if global.battleState == 'fight' then
         updateFightUi(dt)

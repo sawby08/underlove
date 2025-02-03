@@ -33,6 +33,9 @@ function BattleEngine:load()
 end
 
 function BattleEngine:update(dt)
+    if Player.stats.hp <= 0 then
+        global.battleState = 'gameOver'
+    end
     Ui:update(dt)
     Player:update(dt)
     Writer:update(dt)
@@ -46,12 +49,17 @@ function BattleEngine:update(dt)
 end
 
 function BattleEngine:draw()
-    Enemies:background()
-    Enemies:draw()
+    if global.battleState ~= 'gameOver' then
+        Enemies:background()
+        Enemies:draw()
+    end
     Ui:draw()
-    Player:draw()
-    Writer:draw()
+    if global.battleState ~= 'gameOver' then
+        Player:draw()
+        Writer:draw()
+    end
 end
+
 
 function gotoMenu()
     global.battleState = 'buttons'
