@@ -1,13 +1,7 @@
 local debugMode = true
-local FPS = 30
 
-currentEncounter = 'testEnemy'
-Enemies = require('assets.enemies.' .. currentEncounter)
-
-local function loadEnemy()
-	package.loaded[Enemies] = nil
-	Enemies = require('assets.enemies.' .. currentEncounter)
-end
+require 'source.errhand'
+require 'source.fpsLimiter'
 
 function reload()
 	love.audio.stop()
@@ -32,25 +26,38 @@ function love.keypressed(key)
     elseif key == "f4" then
 		fullscreen = not fullscreen
 		love.window.setFullscreen(fullscreen, "desktop")
+	elseif key == '1' then
+		love.graphics.captureScreenshot('screenie.png')
+	elseif key == '2' then
+		error('forceCrash')
+	elseif key == 'r' then
+		reload()
 	end
-	if debugMode then
-		if key == '1' then
-			love.graphics.captureScreenshot('screenie.png') 
-		elseif key == 'r' then
-			reload()
-		end
+end
+
+function love.gamepadpressed(joystick, button)
+    if button == 'dpup' then
+        input.up = true
+	elseif button == 'dpdown' then
+        input.down = true
+	elseif button == 'dpleft' then
+        input.left = true
+	elseif button == 'dpright' then
+        input.right = true
+	elseif button == 'a' then
+		input.primary = true
+	elseif button == 'b' then
+		input.secondary = true
 	end
 end
 
 function love.load(arg)
-	loadEnemy()
-	love.audio.setVolume(1)
+	-- love.audio.setVolume(0)
 	global = {gameState = 'BattleEngine', battleState = nil, choice = 0, subChoice = 0}
 
 	BattleEngine = require 'source.BattleEngine'
 
 	fonts = {
-
 		determination = love.graphics.newFont('assets/fonts/determination-mono.ttf', 32),
 		mnc = love.graphics.newFont('assets/fonts/Mars_Needs_Cunnilingus.ttf', 23),
 		dotumche = love.graphics.newFont('assets/fonts/dotumche.ttf', 13),
@@ -70,6 +77,8 @@ function love.load(arg)
     love.graphics.setBackgroundColor(0, 0, 0)
 
     yourCanvasName = love.graphics.newCanvas(640, 480)
+	local joysticks = love.joystick.getJoysticks()
+    joystick = joysticks[1]
 
     if global.gameState == 'BattleEngine' then BattleEngine:load() end
 end
@@ -79,23 +88,25 @@ function love.update(dt)
     input = {up = false, down = false, left = false, right = false, primary = false, secondary = false}
 end
 
--- didn't make these two functions :( sulfur gave them to me from the love2d forums but we can't find the source
 local function connect()
     love.graphics.setCanvas(yourCanvasName)
     love.graphics.clear()
 end
 
 local function disconnect()
-    love.graphics.setCanvas()
-	local screenW,screenH = love.graphics.getDimensions()
-	local canvasW,canvasH = yourCanvasName:getDimensions()
-	local scale = math.min(screenW/canvasW , screenH/canvasH)
+    love.graphics.setCanvas() -- Set rendering to the screen
+	local screenW,screenH = love.graphics.getDimensions() -- Get Dimensions of the window
+	local canvasW,canvasH = yourCanvasName:getDimensions() -- Get Dimensions of the game canvas
+	local scale = math.min(screenW/canvasW , screenH/canvasH) -- Scale canvas to the screen, You can also change this with 1 if you don't want to scale. Or wrap it in a math.floor to only scale integers.
+	-- local scale = math.floor(math.min(screenW/canvasW , screenH/canvasH)) -- Scale to the nearest integer 
+	--local scale = 1 -- Don't scale
+
 	love.graphics.push()
-	love.graphics.translate( math.floor((screenW - canvasW * scale)/2) , math.floor((screenH - canvasH * scale)/2))
-	love.graphics.scale(scale,scale)
+	love.graphics.translate( math.floor((screenW - canvasW * scale)/2) , math.floor((screenH - canvasH * scale)/2)) -- Move to the appropiate top left corner
+	love.graphics.scale(scale,scale) -- Scale
     love.graphics.setColor(1, 1, 1)
-	love.graphics.draw(yourCanvasName)
-	love.graphics.pop()
+	love.graphics.draw(yourCanvasName) -- Draw the canvas
+	love.graphics.pop() -- pop transformation state
 end
 
 function love.draw()
@@ -107,7 +118,7 @@ function love.draw()
 		local width = 230
 		local height = 81
 
-		love.graphics.setColor(0, 0, 0, .5)
+		love.graphics.setColor(0.05, 0, 0.05, .5)
 		love.graphics.rectangle('fill', 5, 5, width, height, 5)
 
 		love.graphics.setColor(1, 1, 1, 1)
@@ -123,58 +134,5 @@ function love.draw()
 		love.graphics.setFont(fonts.consolas)
 		love.graphics.setColor(1, 1, 1)
 		love.graphics.print('FPS: ' .. love.timer.getFPS() .. '\ngameState: ' .. global.gameState .. '\nbattleState: ' .. global.battleState .. '\nRAM Usage: ' .. math.floor(collectgarbage("count")) .. ' KB', 10, 10)
-	end
-end
-
-local timerSleep = function () return 1/FPS end
-function love.run()
-	if love.math then
-		love.math.setRandomSeed(os.time())
-	end
- 
-	if love.load then love.load(arg) end
- 
-	-- We don't want the first frame's dt to include time taken by love.load.
-	if love.timer then love.timer.step() end
- 
-	local dt = 0
- 
-	-- Main loop time.
-	while true do
-		-- Process events.
-		local startT = love.timer.getTime()
-		
-		if love.event then
-			love.event.pump()
-			for name, a,b,c,d,e,f in love.event.poll() do
-				if name == "quit" then
-					if not love.quit or not love.quit() then
-						return a
-					end
-				end
-				love.handlers[name](a,b,c,d,e,f)
-			end
-		end
- 
-		-- Update dt, as we'll be passing it to update
-		if love.timer then
-			love.timer.step()
-			dt = love.timer.getDelta()
-		end
- 
-		-- Call update and draw
-		if love.update then love.update(dt) end -- will pass 0 if love.timer is disabled
- 
-		if love.graphics and love.graphics.isActive() then
-			love.graphics.clear(love.graphics.getBackgroundColor())
-			love.graphics.origin()
-			if love.draw then love.draw() end
-			love.graphics.present()
-		end
- 
-		if love.timer then
-			local endT = love.timer.getTime()
-			love.timer.sleep(timerSleep() - (endT - startT))
-		end
 	end
 end

@@ -2,7 +2,15 @@ Player = {}
 
 local lastButton
 
-local heart = {}
+local heart = {
+    image = love.graphics.newImage('assets/images/ut-heart.png'),
+    x = Ui.arenaTo.x - 8,
+    y = Ui.arenaTo.y - 8,
+    gravity = 0,
+    jumpstage = 3,
+    jumptimer = 0,
+    show = true
+}
 
 local sfx = {
     move = love.audio.newSource('assets/sound/sfx/menumove.wav', 'static'),
@@ -15,11 +23,6 @@ local color
 local lastButton
 local xoff = 0
 local yoff = 0
-
-function placeSoul()
-    heart.x = Ui.arenaTo.x - 8
-    heart.y = Ui.arenaTo.y - 8
-end
 
 if global.battleState == 'enemyTalk' then
     heart.x = Ui.arenaTo.x - 8
@@ -64,32 +67,11 @@ local function drawGraphic(image, x, y, color, outlineColor)
 end
 
 function Player:load()
-    Player.stats = {
-        name = 'chara',
-        love = 1,
-        hp = 20,
-        maxhp = 20,
-        hasKR = false,
-        armor = 3,
-        weapon = 2,
-        atk = 0,
-        def = 0
-    }
-    heart = {
----@diagnostic disable-next-line: undefined-global
-        image = love.graphics.newImage('assets/images/ut-heart.png'),
-        x = Ui.arenaTo.x - 8,
-        y = Ui.arenaTo.y - 8,
-        gravity = 0,
-        jumpstage = 3,
-        jumptimer = 0,
-        show = true
-    }
+    Player.stats = {name = 'chara', love = 1, hp = 20, maxhp = 20, armor = 3, weapon = 2, atk = 0, def = 0}
     Player.mode = 'red'
-    Player.inventory = {7, 4, 1, 1, 5, 6}
+    Player.inventory = {4, 1, 1, 5, 6}
     Player.chosenEnemy = 0
     Player.actAmount = 0
-    Player.heart = heart
 end
 
 function Player:update(dt)
@@ -110,6 +92,9 @@ function Player:update(dt)
                 global.choice = 3
             end
         elseif input.primary then
+            if joystick then
+                joystick:setVibration(0.25, 0.25, 0.1)
+            end
             if global.choice == 0 or global.choice == 1 then
                 sfx.select:stop()
                 sfx.select:play()
@@ -139,7 +124,6 @@ function Player:update(dt)
         buttonPos()
     end
     if global.battleState == 'enemyTurn' then
-        heart.show = true
         if Player.mode == 'red' then
             heart.x = heart.x + ((love.keyboard.isDown('right')and 1 or 0) - (love.keyboard.isDown('left')and 1 or 0)) * 4 / ((love.keyboard.isDown('x')and 1 or 0) + 1) * dt * 30
             heart.y = heart.y + ((love.keyboard.isDown('down')and 1 or 0) - (love.keyboard.isDown('up')and 1 or 0)) * 4 / ((love.keyboard.isDown('x')and 1 or 0) + 1) * dt * 30
@@ -208,14 +192,6 @@ function Player:update(dt)
                 yoff = 0
                 Writer:stop()
                 global.battleState = 'act'
-            elseif global.choice == 0 and enemies[global.subChoice + 1].state == 'alive' then
-                global.battleState = 'fight'
-                Ui:initFight()
-                doFight()
-                heart.show = false
-                global.choice = -1
-                sfx.select:stop()
-                sfx.select:play()
             else
                 sfx.err:stop()
                 sfx.err:play()
@@ -267,7 +243,7 @@ function Player:update(dt)
             lastButton = global.choice
             global.battleState = 'doAct'
             global.choice = -1
-            Enemies:doAct()
+            doAct()
             heart.show = false
         end
     end
