@@ -1,4 +1,8 @@
-# UNDERLÖVE Engine
+# This Engine Is Abandoned! (June 4)
+<p>I learned better programming practices and am now putting them towards ANOTHER engine. Sorry! I just think starting from scratch would be best.</p>
+[Link to newest engine.](https://github.com/sawby08/undertale-love2d/)
+
+# UNDERLÖVE Engine (April 23)
 <p>UNDERLÖVE is an UNDERTALE engine made with the LÖVE2D game framework. This is a remake of my previous engine, being remade entirely from scratch to put development convinience over accuracy. This is very much a work in progress still but I decided to make this repository public in case anyone wanted to see the engine remake's development.</p>
 
 # Table of Contents
